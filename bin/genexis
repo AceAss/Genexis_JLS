@@ -1,3 +1,4 @@
+BASE_DIR="$(cd "$(dirname "$0")" && pwd)"
 #!/bin/bash
 set -euo pipefail  # Strict mode: exit on error, undefined vars, pipe failures
 
@@ -86,30 +87,21 @@ echo "--------------------------------------"
 # -------------------------------
 # DISPATCHER (MEMORY EFFICIENT)
 # -------------------------------
-case "$MODULE" in
-
+case $MODULE in
   seq-analysis)
-    bash "$(dirname "$0")/../modules/seq-analysis/run.sh" "$INPUT"
+    bash "$BASE_DIR/../modules/seq-analysis/run.sh" "$INPUT"
     ;;
-
   motif)
-    bash "$(dirname "$0")/../modules/motif/run.sh" "$INPUT" "$PATTERN"
+    bash "$BASE_DIR/../modules/motif/run.sh" "$INPUT" "$PATTERN"
     ;;
-
   translation)
-    bash "$(dirname "$0")/../modules/translation/run.sh" "$INPUT"
+    bash "$BASE_DIR/../modules/translation/run.sh" "$INPUT"
     ;;
-
   analysis)
-    bash "$(dirname "$0")/../modules/analysis/run.sh" "$INPUT" "$DOMAIN"
+    bash "$BASE_DIR/../modules/analysis/run.sh" "$INPUT" "$DOMAIN"
     ;;
   orf)
-    bash "$(dirname "$0")/../modules/ORF/run.sh" "$INPUT"
-    ;;
-  *)
-    echo "Error: Invalid module '$MODULE'"
-    exit 1
+    bash "$BASE_DIR/../modules/ORF/run.sh" "$INPUT"
     ;;
 esac
-
 echo "[✔] GENEXIS COMPLETED SUCCESSFULLY"
