@@ -1,7 +1,8 @@
 #!/bin/bash
-set -euo pipefail  # Strict mode: exit on error, undefined vars, pipe failures
+set -euo pipefail  # Strict mode: exit on error or undefined vars
 
 # Safely get the absolute path to the directory containing this script
+# Using BASH_SOURCE prevents issues if the script is called via a symlink
 BASE_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "======================================"
@@ -14,109 +15,48 @@ DOMAIN=""
 PATTERN=""
 
 # -------------------------------
-# Argument Parsing (ENHANCED)
+# Argument Parsing
 # -------------------------------
 while [[ $# -gt 0 ]]; do
   case "$1" in
-    --module)
-      MODULE="$2"
-      shift 2
-      ;;
-    --input|-i)
-      INPUT="$2"
-      shift 2
-      ;;
-    --domain|-d)
-      DOMAIN="$2"
-      shift 2
-      ;;
-    --pattern|-p)
-      PATTERN="$2"
-      shift 2
-      ;;
+    --module) MODULE="$2"; shift 2 ;;
+    --input|-i) INPUT="$2"; shift 2 ;;
+    --domain|-d) DOMAIN="$2"; shift 2 ;;
+    --pattern|-p) PATTERN="$2"; shift 2 ;;
     --help|-h)
       cat << EOF
-Usage:
-  $0 --module seq-analysis --input file.fasta
-  $0 --module motif --input file.fasta --pattern ATG
-  $0 --module translation --input file.fasta
-  $0 --module analysis --input file.fasta --domain cancer
-  $0 --module combined --input file.fasta [--domain cancer] [--pattern ATG]
+Usage: genexis --module <name> --input <file> [options]
 
 Modules:
-  seq-analysis    : Basic sequence stats (length, GC%)
-  motif           : Search for DNA patterns
-  translation     : DNA → Protein translation
-  analysis        : Domain-specific analysis
-  orf             : Find Open Reading Frames
-  mutation        : Detect SNPs, INDELs, and Hotspots
-  assembly        : Epic Greedy Overlap genome assembly
-
-Options:
-  -i, --input     : FASTA file
-  -d, --domain    : Analysis domain (cancer)
-  -p, --pattern   : DNA pattern to search
-  -h, --help      : Show this help
+  seq-analysis, motif, translation, analysis, orf, mutation, assembly
 EOF
       exit 0
       ;;
-    *)
-      echo "Error: Unknown option: $1" >&2
-      exit 1
-      ;;
+    *) echo "Error: Unknown option: $1" >&2; exit 1 ;;
   esac
 done
 
 # -------------------------------
-# VALIDATION (ROBUST)
+# VALIDATION
 # -------------------------------
 [[ -z "$MODULE" ]] && { echo "Error: --module required" >&2; exit 1; }
 [[ -z "$INPUT" ]] && { echo "Error: --input required" >&2; exit 1; }
 [[ ! -f "$INPUT" ]] && { echo "Error: Input file '$INPUT' not found" >&2; exit 1; }
-[[ ! -r "$INPUT" ]] && { echo "Error: Cannot read '$INPUT'" >&2; exit 1; }
-
-# Check file size for memory efficiency
-FILE_SIZE=$(stat -f%z "$INPUT" 2>/dev/null || stat -c%s "$INPUT")
-[[ $FILE_SIZE -gt 1000000000 ]] && echo "Warning: Large file detected (${FILE_SIZE} bytes)"
 
 # -------------------------------
-# INFO
+# DISPATCHER (FORCE ABSOLUTE PATHS)
 # -------------------------------
-echo "[INFO] Module     : $MODULE"
-echo "[INFO] Input      : $INPUT (${FILE_SIZE} bytes)"
-echo "[INFO] Domain     : ${DOMAIN:-none}"
-echo "[INFO] Pattern    : ${PATTERN:-none}"
-echo "--------------------------------------"
-
-# -------------------------------
-# DISPATCHER (MEMORY EFFICIENT)
-# -------------------------------
+# By using the full path to run.sh, we prevent the script from 
+# accidentally calling the 'genexis' global command and looping
 case $MODULE in
-  seq-analysis)
-    bash "$BASE_DIR/../modules/seq-analysis/run.sh" "$INPUT"
-    ;;
-  motif)
-    bash "$BASE_DIR/../modules/motif/run.sh" "$INPUT" "$PATTERN"
-    ;;
-  translation)
-    bash "$BASE_DIR/../modules/translation/run.sh" "$INPUT"
-    ;;
-  analysis)
-    bash "$BASE_DIR/../modules/analysis/run.sh" "$INPUT" "$DOMAIN"
-    ;;
-  orf)
-    bash "$BASE_DIR/../modules/ORF/run.sh" "$INPUT"
-    ;;
-  mutation)
-    bash "$BASE_DIR/../modules/mutation/run.sh" "$INPUT"
-    ;;
-  assembly)
-    bash "$BASE_DIR/../modules/assembly/run.sh" "$INPUT"
-    ;;
-  *)
-    echo "Error: Invalid module '$MODULE'. Use --help to see available modules." >&2
-    exit 1
-    ;;
+  seq-analysis) bash "$BASE_DIR/../modules/seq-analysis/run.sh" "$INPUT" ;;
+  motif)        bash "$BASE_DIR/../modules/motif/run.sh" "$INPUT" "$PATTERN" ;;
+  translation)  bash "$BASE_DIR/../modules/translation/run.sh" "$INPUT" ;;
+  analysis)     bash "$BASE_DIR/../modules/analysis/run.sh" "$INPUT" "$DOMAIN" ;;
+  orf)          bash "$BASE_DIR/../modules/ORF/run.sh" "$INPUT" ;;
+  mutation)     bash "$BASE_DIR/../modules/mutation/run.sh" "$INPUT" ;;
+  assembly)     bash "$BASE_DIR/../modules/assembly/run.sh" "$INPUT" ;;
+  *) echo "Error: Invalid module '$MODULE'." >&2; exit 1 ;;
 esac
 
 echo "[✔] GENEXIS COMPLETED SUCCESSFULLY"
