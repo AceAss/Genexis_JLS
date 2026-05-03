@@ -115,6 +115,6 @@ genexis --module <module_name> --input <file.fasta> [options]
 ## 👥 Project Contributors
 
 This toolkit is developed and maintained by:
-* **Satyakam Tripathy** - Lead Developer
-* **Jonney Reji Thaliath** - Collaborator
-* **Lokesh A** - Collaborator
+* **Satyakam Tripathy** 
+* **Jonney Reji Thaliath** 
+* **Lokesh A** 
