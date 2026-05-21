@@ -32,26 +32,75 @@ while [[ $# -gt 0 ]]; do
       PATTERN="$2"
       shift 2
       ;;
-    --help|-h)
+        --help|-h)
       cat << EOF
-Usage:
-  $0 --module seq-analysis --input file.fasta
-  $0 --module motif --input file.fasta --pattern ATG
-  $0 --module translation --input file.fasta
-  $0 --module analysis --input file.fasta --domain cancer
-  $0 --module combined --input file.fasta [--domain cancer] [--pattern ATG]
 
-Modules:
-  seq-analysis    : Basic sequence stats (length, GC%)
-  motif           : Search for DNA patterns
-  translation     : DNA → Protein translation
-  analysis        : Domain-specific analysis
+======================================
+         GENEXIS TOOLKIT v2.0
+======================================
 
-Options:
-  -i, --input     : FASTA file
-  -d, --domain    : Analysis domain (cancer)
-  -p, --pattern   : DNA pattern to search
-  -h, --help      : Show this help
+DESCRIPTION:
+  Modular bioinformatics toolkit for sequence analysis,
+  motif detection, translation, mutation analysis,
+  ORF prediction, and genome assembly utilities.
+
+USAGE:
+  $0 --module <module_name> --input <file.fasta> [options]
+
+BASIC EXAMPLES:
+  # Sequence statistics
+  $0 --module seq-analysis --input sample.fasta
+
+  # Motif search
+  $0 --module motif --input sample.fasta --pattern ATG
+
+  # DNA to protein translation
+  $0 --module translation --input sample.fasta
+
+  # ORF prediction
+  $0 --module orf --input sample.fasta
+
+  # Mutation analysis
+  $0 --module mutation --input sample.fasta
+
+  # Genome assembly
+  $0 --module assembly --input reads.fastq
+
+  # Domain-specific analysis
+  $0 --module analysis --input sample.fasta --domain cancer
+
+AVAILABLE MODULES:
+  seq-analysis   Perform sequence statistics and GC analysis
+  motif          Search for DNA/RNA motifs or patterns
+  translation    Translate DNA sequences into proteins
+  orf            Identify Open Reading Frames (ORFs)
+  mutation       Detect and analyze sequence mutations
+  assembly       Perform basic sequence assembly operations
+  analysis       Domain-specific biological analysis
+
+OPTIONS:
+  -i, --input <file>
+        Input FASTA/FASTQ file
+
+  -p, --pattern <motif>
+        DNA/RNA motif pattern for motif search
+
+  -d, --domain <name>
+        Analysis domain (example: cancer)
+
+  -h, --help
+        Display this help message
+
+FEATURES:
+  ✔ Strict error handling
+  ✔ Modular architecture
+  ✔ Large file support
+  ✔ Memory-efficient execution
+  ✔ Easy pipeline integration
+
+AUTHOR:
+  Genexis Bioinformatics Toolkit
+
 EOF
       exit 0
       ;;
